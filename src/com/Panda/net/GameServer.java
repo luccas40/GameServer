@@ -1,13 +1,22 @@
 package com.Panda.net;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.Panda.entity.*;
-import com.Panda.net.Packet.*;
+import com.Panda.entity.Argent;
+import com.Panda.entity.Enemy;
+import com.Panda.entity.Player;
+import com.Panda.net.Packet.Packet0Alert;
+import com.Panda.net.Packet.Packet1LoginRequest;
+import com.Panda.net.Packet.Packet2LoginAnswer;
+import com.Panda.net.Packet.Packet3Message;
+import com.Panda.net.Packet.PlayerDisconnect;
+import com.Panda.net.Packet.PlayerSync;
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Server;
 
 public class GameServer {
@@ -19,7 +28,7 @@ public class GameServer {
 	private NetworkListener nl = new NetworkListener();
 	
 	private static Server server;
-	private static ArrayList<Argent> OnlinePlayers = new ArrayList<Argent>();
+	public static Map<Integer, Argent> OnlinePlayers = new HashMap<Integer, Argent>();
 	
 
 	public GameServer(int tcp, int udp, String name, int players){
@@ -41,6 +50,9 @@ public class GameServer {
 	    kryo.register(Packet2LoginAnswer.class);
 	    kryo.register(Packet3Message.class);
 	    kryo.register(Player.class);
+	    kryo.register(Enemy.class);
+	    kryo.register(PlayerSync.class);
+        kryo.register(PlayerDisconnect.class);
 	}
 	
 	
@@ -81,9 +93,6 @@ public class GameServer {
 	
 	public static Server getServer(){ return server; }
 	
-	public static ArrayList<Argent> getOnlinePlayers(){
-		return OnlinePlayers;
-	}
 	
 	public static void log(String log){ //[SERVER]
 		Calendar cal = Calendar.getInstance();
@@ -93,53 +102,37 @@ public class GameServer {
 		com.Panda.GUI.index.logs.append("  "+hours+":"+minutes+"  [SERVER] "+log+"\n");
 	}
 	
-	public static Argent getOnlinePlayer(int world){
-		Argent a = null;
-		for(Argent A : OnlinePlayers){
-			if(A.connection.getID() == world){
-				a = A;
+
+	
+	public static Argent getOnlinePlayer(Connection c){
+			if(OnlinePlayers.containsKey(c.getID())){
+				return OnlinePlayers.get(c.getID());
 			}
-		}
-		return a;		
+			return null;
 	}
 	
-	public static Argent getOnlinePlayer(String name){
-		Argent a = null;
-		for(Argent A : OnlinePlayers){
-			if(A.player.name.equals(name)){
-				a = A;
-			}
-		}
-		return a;		
+	public static void addPlayer(Connection c, Player p){
+		Argent a = new Argent(); a.c = c; a.p = p;
+		OnlinePlayers.put(c.getID(), a);
 	}
 	
-	public static void addPlayer(Argent a){
-		for(Argent A : OnlinePlayers){
-			if(A.connection.getID() == a.connection.getID() ){
-				return;
-			}	
-		}
+	public static void removePlayer(Connection c){
+		OnlinePlayers.remove(c.getID());
+	}
+	
+	public static boolean doubleLogin(Connection c, Player player){
 		
-		OnlinePlayers.add(a);
+		if(OnlinePlayers.containsKey(c.getID())){
+			if(OnlinePlayers.get(c.getID()).p.name != null){
+				return true;
+			}else { return false; }
+		}else { return false; }
 	}
-	public static void removePlayer(Argent a){
-		if(OnlinePlayers.contains(a))  OnlinePlayers.remove(a); 
-	}
-	public static boolean doubleLogin(Player player){
-		for(Argent a : OnlinePlayers){
-			if(a.player != null){
-				if(a.player.getId() == player.getId() ){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	public static void setPlayerOnline(int cID, Player player){
-		for(Argent A : OnlinePlayers){
-			if(A.connection.getID() == cID){
-				A.player = player;
-			}
+	
+	public static void setPlayerOnline(Connection c, Player p){
+		if(OnlinePlayers.containsKey(c.getID())){
+			Argent a = new Argent(); a.c = c; a.p = p;
+			OnlinePlayers.put(c.getID(), a);
 		}
 	}
 

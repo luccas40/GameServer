@@ -17,16 +17,15 @@ public class Packet1LoginHandler {
 		Packet0Alert alert = new Packet0Alert();
 		Player player = mysql.Login(request.user, request.pass);
 		if(player != null){
-			if(!GameServer.doubleLogin(player)){
+			if(!GameServer.doubleLogin(c, player)){
 				loginAnswer.accepted = true;
-				loginAnswer.id = player.getId();
-				GameServer.log("Player sent: "+player.name);
+				loginAnswer.player = player;
 				c.sendTCP(loginAnswer);	
 				int pn = Integer.parseInt(com.Panda.GUI.players.OnlinePlayes.getText())+1;
 				com.Panda.GUI.players.OnlinePlayes.setText(""+pn);
 				com.Panda.GUI.players.listPlayers.addElement(""+player.name);
-				GameServer.setPlayerOnline(c.getID(), player);
-				GameServer.log("User "+player.name+" logged");
+				GameServer.setPlayerOnline(c, player);
+				GameServer.log("User "+loginAnswer.player.name+" logged");
 			}else{
 				alert.exit = true;
 				alert.message = "Double Login, Client will close";

@@ -1,12 +1,12 @@
 package com.Panda.entity;
 
 import com.Panda.mysql.mysql;
+import com.esotericsoftware.kryonet.Connection;
 
 public class Player {
 	
 	
 	private int id;
-	private int ConnectionID;
 	public String name;
 	public long level;
 	public long xp;
@@ -22,13 +22,8 @@ public class Player {
 	public long gold;
     public float x=0;
     public float y=5;
-    public float z=0;    
-    public float lastx=0;
-    public float lasty=100;
-    public float lastz=0;
+    public float z=0;
 	
-	public int getConID(){ return ConnectionID; }
-	public void setConID(int id) { ConnectionID = id; }
 	
 	
 	public void setPlayer(int id, String name, long level, long xp, long xpMax, long hp, long mp, long str, long agi, long inte, long res, long vit, long points, long gold){

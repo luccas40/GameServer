@@ -1,11 +1,13 @@
 package com.Panda.net;
 
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
-import com.Panda.entity.Argent;
-import com.Panda.entity.Player;
-import com.Panda.net.Packet.Packet1LoginRequest;
-import com.Panda.net.packets.Packet1LoginHandler;
+import com.Panda.entity.*;
+import com.Panda.net.Packet.*;
+import com.Panda.net.packets.*;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
@@ -14,47 +16,30 @@ public class NetworkListener extends Listener {
 	
 
 	public void connected(Connection c) {
-		Argent me = new Argent();
-		me.connection = c;
-		GameServer.addPlayer(me);
-
+		Player me = new Player();
+		GameServer.addPlayer(c, me);
 	}
 
 	public void disconnected(Connection c) {
 		
-		Argent me = GameServer.getOnlinePlayer(c.getID());
-		if(me.player != null){
+		Argent me = GameServer.getOnlinePlayer(c);
+		if(me != null){
 			int pn = Integer.parseInt(com.Panda.GUI.players.OnlinePlayes.getText())-1;
 			com.Panda.GUI.players.OnlinePlayes.setText(""+pn);
-			GameServer.removePlayer(me);
-			com.Panda.GUI.players.listPlayers.removeElement(""+me.player.name);
+			GameServer.removePlayer(c);
+			com.Panda.GUI.players.listPlayers.removeElement(""+me.p.name);
+			PlayerDisconnect dc = new PlayerDisconnect(); dc.id = c.getID();
+			GameServer.getServer().sendToAllTCP(dc);
 		}else{
-			GameServer.removePlayer(me);
+			GameServer.removePlayer(c);
 		}
 		
 	}
 	
-	public void idle(Connection c) {
-		ArrayList<Argent> a =  GameServer.getOnlinePlayers();
-		
-		for(Argent b : a){
-			if(b.player != null){
-				b.player.setConID(b.connection.getID());
-				GameServer.getServer().sendToAllUDP(b.player);
-			}
-		}
-		
-		
-	}
 	
 	public void received(Connection c, Object o) {
-		
 			if(o instanceof Packet1LoginRequest){ new Packet1LoginHandler(c, o); }
-			if(o instanceof Player){ 
-				Player receive = (Player)o;
-				System.out.println("Chegou o player "+receive.name+" com x: "+receive.x);
-				GameServer.setPlayerOnline(receive.getConID(), receive);
-			}
+	   else if(o instanceof PlayerSync){ new Player2Sync(c, o); }
 			else{
 				if (!o.getClass().getName().contains("com.esotericsoftware.kryonet")) {
 						GameServer.log(" Unhandled Packet Received: "+o.getClass().getName());
