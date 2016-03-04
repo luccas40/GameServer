@@ -18,6 +18,7 @@ public class Packet1LoginHandler {
 		Player player = mysql.Login(request.user, request.pass);
 		if(player != null){
 			if(!GameServer.doubleLogin(c, player)){
+				player.setId(c.getID());
 				loginAnswer.accepted = true;
 				loginAnswer.player = player;
 				c.sendTCP(loginAnswer);	

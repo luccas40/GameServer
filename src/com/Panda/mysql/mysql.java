@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.Panda.entity.Player;
+import com.Panda.net.GameServer;
 
 public class mysql {
 	
@@ -31,7 +32,7 @@ public class mysql {
 				System.out.println("O driver expecificado nao foi encontrado."); 
 				return null; 
 			} catch (SQLException e) { //Não conseguindo se conectar ao banco 
-				System.out.println("Nao foi possivel conectar ao Banco de Dados.");
+				GameServer.log("Nao foi possivel conectar ao Banco de Dados.");
 				return null; 
 			} 
 		}

@@ -1,5 +1,6 @@
 package com.Panda.net.packets;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -23,21 +24,20 @@ public class Player2Sync {
 			GameServer.setPlayerOnline(c, player.p);
 		}
 		
-		Map<Integer, Argent> On =  GameServer.OnlinePlayers;
+		Map<Integer, Argent> On =  new HashMap<Integer, Argent>( GameServer.OnlinePlayers );
 		Set<Entry<Integer, Argent>> set = On.entrySet();
         Iterator it = set.iterator();
 		while(it.hasNext()){
 			 Argent a = (Argent) ((Entry)it.next()).getValue();
 			if(a.p.name != null){
-				if(!a.p.name.equals(receive.name)){
-					System.out.println("Enemy "+a.p.name+" location: "+(a.p.x-receive.x));
-					if((a.p.x - receive.x) <= 30 || (a.p.z - receive.z) <= 30){
-						Enemy enemy = new Enemy();
-						System.out.println("Enemy envied: "+a.p.name);
-						enemy.setEnemy(a.p.name, a.p.level, a.p.x, a.p.y, a.p.z);
-						c.sendUDP(enemy);
-					}
+				System.out.println("Enemy "+a.p.name+" location: "+(a.p.x-receive.x));
+				if((a.p.x - receive.x) <= 30 || (a.p.z - receive.z) <= 30){
+					Enemy enemy = new Enemy();
+					System.out.println("Enemy envied: "+a.p.name);
+					enemy.setEnemy(a.p.getId(), a.p.name, a.p.level, a.p.x, a.p.y, a.p.z);
+					c.sendUDP(enemy);
 				}
+				
 			}
 				
 		}

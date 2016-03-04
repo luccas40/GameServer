@@ -9,6 +9,7 @@ import java.util.Map;
 import com.Panda.entity.Argent;
 import com.Panda.entity.Enemy;
 import com.Panda.entity.Player;
+import com.Panda.mysql.mysql;
 import com.Panda.net.Packet.Packet0Alert;
 import com.Panda.net.Packet.Packet1LoginRequest;
 import com.Panda.net.Packet.Packet2LoginAnswer;
@@ -61,8 +62,9 @@ public class GameServer {
 		server.bind(tcp, udp);
 		server.start();
 		server.update(6000);
+		mysql.getNet();
 		log("Started and Listening TCP "+tcp+" and UDP "+udp);
-		} catch(IOException e){ log(e.getMessage(), 1);}
+		} catch(IOException  e){ log(e.getMessage(), 1);}
 	}
 	
 	public void stop(){

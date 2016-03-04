@@ -48,6 +48,7 @@ public class Player {
 	public long getHp(){ return (int)((vitality*10*level)+(resistence*0.5)+(strength*0.1*level));	}
 	public long getMp(){ return (int)((inteligence*5*level)+(vitality/2));	}
 	public int getId() { return id; }
+	public void setId(int id) { this.id = id; }
 	public double getCriticalChance() { return (agility * 0.02)    ; }
 	public long getCriticalDamage() { return (long)(agility * 0.3 + strength * 0.1)+1; }
 
